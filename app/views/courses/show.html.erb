@@ -1,0 +1,79 @@
+<p id="notice"><%= notice %></p>
+<p>
+  <strong>Title:</strong>
+  <%= @course.title %>
+</p>
+<p>
+  <strong>Description:</strong>
+  <%= @course.description %>
+</p>
+<hr>
+<h3>Documents of this course</h3>
+<br>
+<div class="btn-group" role="group" aria-label="Basic example">
+  <%= link_to new_course_document_path(@course), class: "btn btn-primary" do %>
+    <i class="far fa-address-book"></i> Add Document
+  <% end %>
+  <button type="button" class="btn btn-warning" id="btn_download">
+    <i class="far fa-address-book"></i> Download
+  </button>
+</div>
+<table class="table">
+  <thead>
+    <th>ID</th>
+    <th>Description</th>
+    <th>Image</th>
+    <th>Actions</th>
+  </thead>
+  <tbody>
+    <%= form_tag download_path, remote: true, method: :post, id:"form-download" do %>
+      <%= hidden_field_tag 'course_id', @course.id %>
+      <% @course.documents.each do |doc| %>
+        <tr>
+          <td><%= doc.id %></td>
+          <td><%= doc.description %></td>
+          <td>
+            <% if doc.file.attached? && doc.file.previewable? %>
+              <%= image_tag doc.file.preview(resize_to_limit: [150,150]) %>
+            <% else %>
+              <%= image_tag doc.file, size: "150x150" %>
+            <% end %>
+          </td>
+          <td>
+            <%# check_box_tag 'tos', 'yes', false, :class => 'accept_tos' %>
+            <%= check_box_tag "document_ids[]", doc.id, false, class: "checkbox" %>
+          </td>
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>
+<br>
+<br>
+<br>
+<%= link_to 'Back', courses_path %>
+<script>
+  var btn_download = document.getElementById('btn_download');
+  var form = document.getElementById('form-download');
+  
+  
+  btn_download.disabled = true;
+  
+  var checkboxes = document.getElementsByClassName("checkbox");
+  for(i=0;i < checkboxes.length; i++){
+    checkboxes[i].addEventListener("click", function() {
+    var checkboxesSelected = document.querySelectorAll('input[type=checkbox]:checked')
+    if (checkboxesSelected.length > 0) {
+        btn_download.disabled = false;
+      }else{
+        btn_download.disabled = true;
+      }
+    });
+  }
+  
+  
+  //cuando hace click en el boton download
+   btn_download.addEventListener("click", function() {
+     form.submit();
+   });
+</script>

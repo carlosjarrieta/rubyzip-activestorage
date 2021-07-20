@@ -1,0 +1,22 @@
+<div class="row">
+  <h3 class="text-primary"><%= "Documento para el curso #{@course.title}" %></h3>
+</div>
+<%= simple_form_for [@course, document], validate: true do |form| %>
+  <% if document.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(document.errors.count, "error") %> prohibited this document from being saved:</h2>
+      <ul>
+        <% document.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <%= form.input :description %>
+  <%= form.file_field :file %>
+  <div class="actions mt-3">
+    <%= button_tag(type: "submit", class: "btn btn-primary btn-shadow") do %>
+      <i class="far fa-save"></i> Guardar
+    <% end %>
+  </div>
+<% end %>

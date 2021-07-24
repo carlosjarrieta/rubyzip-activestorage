@@ -1,5 +1,5 @@
 require "zip"
-
+require 'fileutils'
 class DocumentsController < ApplicationController
   before_action :set_course
   before_action :set_document, only: %i[ show edit update destroy ]
@@ -54,11 +54,18 @@ class DocumentsController < ApplicationController
   end
 
   def download
-    @course.documents.where(id: params[:document_ids])
+    @courses = @course.documents.where(id: params[:document_ids])
     tmp_user_folder = "tmp/course_#{@course.id}"
-    directory_length_same_as_documents = Dir["#{tmp_user_folder}/*"].length == @course.documents.length
+    begin
+      FileUtils.rm_rf(tmp_user_folder)
+      File.delete("#{tmp_user_folder}.zip") if File.exist?("#{tmp_user_folder}.zip")
+    rescue StandarError
+    end
+
+
+    directory_length_same_as_documents = Dir["#{tmp_user_folder}/*"].length == @courses.length
     FileUtils.mkdir_p(tmp_user_folder) unless Dir.exists?(tmp_user_folder)
-    @course.documents.each do |document|
+    @courses.each do |document|
       filename = document.file.blob.filename.to_s
       create_tmp_folder_and_store_documents(document, tmp_user_folder, filename) unless directory_length_same_as_documents
       #---------- Convert to .zip --------------------------------------- #
